@@ -1,5 +1,6 @@
 let map;
 let marker;
+let marker_sleep;
 
 async function initMap() {
   try {
@@ -28,33 +29,14 @@ async function initMap() {
 function loadMap() {
   map = new google.maps.Map(document.getElementById('map'), {
     center: {lat: 33.794629, lng: -117.850284},
-    zoom: 17.5,
+    zoom: 19,
   });
 
   // Create the initial marker when the map is first loaded
   updateMarker();
 
   // Call updateMarker every minute
-  setInterval(updateMarker, 60000);
-
-  // fetch('/api/coordinates')
-  // .then(response => response.text())
-  // .then(data => {
-  //   const [lat, lng] = data.trim().split(',').map(Number);
-  //   const position = { lat, lng };
-
-  //   new google.maps.Marker({
-  //     position: position,
-  //     map: map,
-  //     icon: {
-  //       url: 'assets/corgi.svg',
-  //       scaledSize: new google.maps.Size(50, 50)
-  //     },
-  //     title: 'Corgi Location'
-  //   });
-
-  // })
-  // .catch(error => console.error('Error fetching coordinates:', error));
+  setInterval(updateMarker, 30000);
 }
 
 function updateMarker() {
@@ -63,6 +45,31 @@ function updateMarker() {
     .then(data => {
       const [lat, lng] = data.trim().split(',').map(Number);
       const position = { lat, lng };
+      // if position is 0, 0, then use a picture of a sleeping corgi instead with the title "Corgi is sleeping"
+      // create a new market with assets/sleep.jpg
+      if (lat === 0 && lng === 0) {
+        // delete the corgi marker
+        if (marker) {
+          marker.setMap(null);
+        }
+        // Update map center to the new position
+        map.setCenter(position);
+        marker_sleep = new google.maps.Marker({
+          position: center,
+          map: map,
+          icon: {
+            url: 'assets/sleep.jpg',
+            scaledSize: new google.maps.Size(50, 50)
+          },
+          title: 'Corgi is sleeping'
+        });
+      } else {
+        // delete the sleeping corgi marker
+        if (marker_sleep) {
+          marker_sleep.setMap(null);
+        }
+      }
+
 
       // Check if marker exists
       if (marker) {

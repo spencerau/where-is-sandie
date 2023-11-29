@@ -10,9 +10,9 @@ def is_within_radius(point_coords, center_coords, radius_miles):
 
 # Chapman University's coordinates
 chapman_university_coords = (33.7935, -117.8531)
-radius_miles = 1  # Radius in miles
+radius_miles = 2  # Radius in miles
 
-file_name = "Test_NULL_J09LFALCP0GV.csv"
+file_name = "Sandie’s AirTag _NULL_J09LF9X5P0GV.csv"
 base_dir = "/Users/spencerau/FindMyHistory/log"
 
 # Prepare the file path
@@ -48,8 +48,12 @@ def readCSV(csv_file_path):
         print("most recent point: ", most_recent_point)
 
         # Check if the most recent point is within the 1-mile radius of Chapman University
-        if most_recent_point and is_within_radius(most_recent_point, chapman_university_coords, radius_miles):
+        if most_recent_point:
+            if is_within_radius(most_recent_point, chapman_university_coords, radius_miles):
                 write_to_txt(most_recent_point[0], most_recent_point[1])
+            else:
+                # If the most recent point is not within the radius; print something to file to indicate that 
+                write_to_txt(0, 0)
 
         time.sleep(60)  # Wait for 60 seconds before next iteration
 
