@@ -1,6 +1,8 @@
 let map;
 let marker;
-let marker_sleep;
+let center = { lat: 33.793351, lng: -117.851700 };
+
+// 33.793351,-117.851700
 
 async function initMap() {
   try {
@@ -28,70 +30,59 @@ async function initMap() {
 // It should not be async and should not have any awaits.
 function loadMap() {
   map = new google.maps.Map(document.getElementById('map'), {
-    center: {lat: 33.794629, lng: -117.850284},
-    zoom: 19,
+    center: {lat: 33.793351, lng: -117.851700},
+    zoom: 18,
   });
 
   // Create the initial marker when the map is first loaded
   updateMarker();
 
   // Call updateMarker every minute
-  setInterval(updateMarker, 30000);
+  setInterval(updateMarker, 60000);
 }
 
 function updateMarker() {
   fetch('/api/coordinates')
-    .then(response => response.text())
-    .then(data => {
-      const [lat, lng] = data.trim().split(',').map(Number);
-      const position = { lat, lng };
-      // if position is 0, 0, then use a picture of a sleeping corgi instead with the title "Corgi is sleeping"
-      // create a new market with assets/sleep.jpg
-      if (lat === 0 && lng === 0) {
-        // delete the corgi marker
-        if (marker) {
-          marker.setMap(null);
-        }
-        // Update map center to the new position
-        map.setCenter(position);
-        marker_sleep = new google.maps.Marker({
-          position: center,
-          map: map,
-          icon: {
-            url: 'assets/sleep.jpg',
-            scaledSize: new google.maps.Size(50, 50)
-          },
-          title: 'Corgi is sleeping'
-        });
-      } else {
-        // delete the sleeping corgi marker
-        if (marker_sleep) {
-          marker_sleep.setMap(null);
-        }
-      }
+      .then(response => response.text())
+      .then(data => {
+          const [lat, lng] = data.trim().split(',').map(Number);
 
+          if (lat === 0 && lng === 0) {
+              // Replace the map with the image of Sandie napping and update the header text.
+              document.getElementById('map').style.display = 'none'; // Hide the map
+              document.getElementById('header').textContent = 'Sandie is Currently Napping'; // Update the header text
+              document.getElementById('sleepingCorgi').style.display = 'block'; // Show the sleeping Corgi div
 
-      // Check if marker exists
-      if (marker) {
-        // Update marker position
-        marker.setPosition(position);
-      } else {
-        // Create a new marker if it doesn't exist
-        marker = new google.maps.Marker({
-          position: position,
-          map: map,
-          icon: {
-            url: 'assets/corgi.svg',
-            scaledSize: new google.maps.Size(50, 50)
-          },
-          title: 'Corgi Location'
-        });
-      }
+              if (marker) {
+                  marker.setMap(null); // Remove the marker from the map
+                  marker = null;
+              }
+          } else {
+              // Show the map and hide the sleeping Corgi
+              document.getElementById('map').style.display = 'block';
+              document.getElementById('sleepingCorgi').style.display = 'none';
 
-      // Update map center to the new position
-      map.setCenter(position);
-    })
-    .catch(error => console.error('Error fetching coordinates:', error));
+              // Update or create the marker
+              const position = { lat, lng };
+              if (marker) {
+                  marker.setPosition(position);
+              } else {
+                  marker = new google.maps.Marker({
+                      position: position,
+                      map: map,
+                      icon: {
+                          url: 'assets/corgi.svg',  // Path to Corgi SVG
+                          scaledSize: new google.maps.Size(50, 50)
+                      },
+                      title: 'Sandie Location'
+                  });
+              }
+
+              // Center the map on the new position
+              map.setCenter(position);
+          }
+      })
+      .catch(error => console.error('Error fetching coordinates:', error));
 }
 
 // Make the loadMap function available globally
