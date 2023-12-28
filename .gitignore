@@ -1,2 +1,4 @@
 .env
 *.txt
+.DS_Store
+logs/*

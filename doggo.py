@@ -31,10 +31,13 @@ ftp_password = os.getenv('FTP_PASSWORD')
 ftp_directory = '/public_html/'
 
 
-# Function to log messages to a file
 def log_to_file(message, file_path):
-    with open(file_path, 'a') as f:
-        f.write(message + '\n')
+    try:
+        with open(file_path, 'w') as f:
+            f.write(message + '\n')
+    except Exception as e:
+        print(f"Error writing to file: {e}")
+
 
 
 # Prepare the file path
@@ -49,6 +52,7 @@ csv_file_path = createFilePath(base_dir, file_name)
 def write_to_txt(lat, lng):
     with open('/Users/spencerau/Documents/GitHub/where-is-sandy/coordinates.txt', 'w') as file:
         file.write(f"{lat},{lng}\n")
+        #file.write("33.7933,-117.8517")
 
 
 def readCSV(csv_file_path):
@@ -108,8 +112,6 @@ def ftp_upload():
                 ftp.quit()
             except Exception as e:
                 log_to_file(f"Error occurred while closing FTP connection: {e}", error_log_file)
-
-
 
 
 # Call the function to read the CSV and write to the text file

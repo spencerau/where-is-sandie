@@ -10,8 +10,11 @@
     max-width: 100%; /* makes sure the image is not bigger than the container */
     height: auto; /* keeps the aspect ratio of the image */
     scale: 0.5;
-}
+  }
 
+  #header {
+    text-align: center;
+  }
   
   /* 
    * Optional: Makes the sample page fill the window. 

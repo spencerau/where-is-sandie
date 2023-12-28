@@ -38,19 +38,23 @@ function loadMap() {
   updateMarker();
 
   // Call updateMarker every minute
-  setInterval(updateMarker, 60000);
+  setInterval(updateMarker, 30000);
 }
 
 function updateMarker() {
-  fetch('/api/coordinates')
-      .then(response => response.text())
-      .then(data => {
-          const [lat, lng] = data.trim().split(',').map(Number);
+  fetch('coordinates.txt') // Fetch the coordinates.txt file
+        .then(response => response.text())
+        .then(data => {
+            const [lat, lng] = data.trim().split(',').map(Number);
 
           if (lat === 0 && lng === 0) {
               // Replace the map with the image of Sandie napping and update the header text.
               document.getElementById('map').style.display = 'none'; // Hide the map
               document.getElementById('header').textContent = 'Sandie is Currently Napping'; // Update the header text
+              // make sure the header is centered
+              document.getElementById('header').style.margin = '0 auto';
+              document.getElementById('header').style.width = 'fit-content';
+              document.getElementById('header').style.padding = '0 1rem';
               document.getElementById('sleepingCorgi').style.display = 'block'; // Show the sleeping Corgi div
 
               if (marker) {
