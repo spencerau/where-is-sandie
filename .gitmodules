@@ -1,0 +1,7 @@
+[submodule "FindMyHistory"]
+	path = FindMyHistory
+	url = https://github.com/fjxmlzn/FindMyHistory.git
+
+[submodule "AirtagAlex"]
+	path = AirtagAlex
+	url = https://github.com/icepick3000/AirtagAlex

@@ -16,7 +16,7 @@ chapman_university_coords = (33.7933,-117.8517)
 radius_miles = 1.5  # Radius in miles
 
 file_name = "Sandie’s AirTag _NULL_J09LF9X5P0GV.csv"
-base_dir = "/Users/spencerau/FindMyHistory/log"
+base_dir = "/Users/spencerau/Documents/GitHub/where-is-sandy/FindMyHistory/log"
 
 # Define log files
 ftp_log_file = '/Users/spencerau/Documents/GitHub/where-is-sandy/logs/ftp_activity.log'
