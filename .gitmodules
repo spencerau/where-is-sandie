@@ -4,4 +4,8 @@
 
 [submodule "AirtagAlex"]
 	path = AirtagAlex
-	url = https://github.com/icepick3000/AirtagAlex
+	url = https://github.com/icepick3000/AirtagAlex.git
+
+[submodule "openhaystack"]
+	path = openhaystack
+	url = https://github.com/seemoo-lab/openhaystack.git

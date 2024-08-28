@@ -16,11 +16,11 @@ chapman_university_coords = (33.7933,-117.8517)
 radius_miles = 1.5  # Radius in miles
 
 file_name = "Sandie’s AirTag _NULL_J09LF9X5P0GV.csv"
-base_dir = "/Users/spencerau/Documents/GitHub/where-is-sandy/FindMyHistory/log"
+base_dir = "/FindMyHistory/log"
 
 # Define log files
-ftp_log_file = '/Users/spencerau/Documents/GitHub/where-is-sandy/logs/ftp_activity.log'
-error_log_file = '/Users/spencerau/Documents/GitHub/where-is-sandy/logs/ftp_errors.log'
+ftp_log_file = '/logs/ftp_activity.log'
+error_log_file = '/logs/ftp_errors.log'
 
 dotenv.load_dotenv()
 
@@ -50,7 +50,7 @@ def createFilePath(base_dir, file_name):
 csv_file_path = createFilePath(base_dir, file_name)
 
 def write_to_txt(lat, lng):
-    with open('/Users/spencerau/Documents/GitHub/where-is-sandy/coordinates.txt', 'w') as file:
+    with open('/coordinates.txt', 'w') as file:
         file.write(f"{lat},{lng}\n")
         #file.write("33.7933,-117.8517")
 
@@ -98,7 +98,7 @@ def ftp_upload():
         ftp.cwd(ftp_directory)
         print(f"Current FTP directory: {ftp.pwd()}")  # Print the current directory on the server
 
-        with open('/Users/spencerau/Documents/GitHub/where-is-sandy/coordinates.txt', 'rb') as file:
+        with open('/coordinates.txt', 'rb') as file:
             ftp.storbinary('STOR coordinates.txt', file)
             print("File uploaded successfully")  # Indicate successful upload
 
