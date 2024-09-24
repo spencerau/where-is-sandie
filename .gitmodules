@@ -1,11 +1,4 @@
 [submodule "FindMyHistory"]
 	path = FindMyHistory
-	url = https://github.com/fjxmlzn/FindMyHistory.git
+	url = https://github.com/spencerau/FindMyHistory.git
 
-[submodule "AirtagAlex"]
-	path = AirtagAlex
-	url = https://github.com/icepick3000/AirtagAlex.git
-
-[submodule "openhaystack"]
-	path = openhaystack
-	url = https://github.com/seemoo-lab/openhaystack.git
