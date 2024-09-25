@@ -1,0 +1,4 @@
+tabulate
+python-dotenv
+geopy
+requests

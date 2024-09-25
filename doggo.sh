@@ -13,7 +13,7 @@ done
 clear
 
 # Open terminal window for FindMyHistory and run main.py
-osascript -e 'tell application "Terminal" to do script "cd /Users/spencerau/Documents/GitHub/where-is-sandie/FindMyHistory && python3 main.py --refresh 100"'
+osascript -e 'tell application "Terminal" to do script "cd /Users/spencerau/Documents/GitHub/where-is-sandie/FindMyHistory && python3 main.py"'
 
 # Adding a short sleep to ensure main.py has started
 #sleep 3
