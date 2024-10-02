@@ -1,10 +1,9 @@
 const fs = require('fs');
 const path = require('path');
-const multer = require('multer');
 const csv = require('csv-parser');
 
-const upload = multer({ dest: 'uploads/' });
-const csvDirectory = path.join(__dirname, 'uploads');
+// Use the /tmp directory in Vercel
+const csvDirectory = '/tmp/uploads';
 
 if (!fs.existsSync(csvDirectory)) {
     fs.mkdirSync(csvDirectory, { recursive: true });
@@ -38,24 +37,26 @@ function processCSV(filePath) {
         });
 }
 
-module.exports = (req, res) => {
-    upload.single('csv')(req, res, (err) => {
-        if (err) {
-            return res.status(500).send('Upload error');
-        }
+module.exports = async (req, res) => {
+    if (req.method !== 'POST') {
+        return res.status(405).send('Method Not Allowed');
+    }
 
-        if (req.file && req.file.mimetype === 'text/csv') {
-            const filePath = path.join(csvDirectory, req.file.filename);
+    const file = req.files?.csv; // Access the uploaded file
 
-            const intervalId = setInterval(() => {
-                processCSV(filePath);
+    if (!file || file.mimetype !== 'text/csv') {
+        return res.status(400).send('Please upload a valid CSV file');
+    }
 
-                clearInterval(intervalId);
-            }, 100);
+    const filePath = path.join(csvDirectory, file.name);
 
-            res.status(200).send('CSV uploaded and processing started');
-        } else {
-            res.status(400).send('Please upload a valid CSV file');
-        }
-    });
+    // Save the uploaded file to the /tmp directory
+    fs.writeFileSync(filePath, file.data);
+
+    const intervalId = setInterval(() => {
+        processCSV(filePath);
+        clearInterval(intervalId);
+    }, 100);
+
+    res.status(200).send('CSV uploaded and processing started');
 };
