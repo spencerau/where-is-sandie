@@ -1,42 +1,110 @@
 require('dotenv').config();
 const express = require('express');
 const fs = require('fs');
-const path = require('path');  // Import the path module
-const app = express();
+const path = require('path');
+const multer = require('multer');
+const csv = require('csv-parser');
 
+const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Serve the static files (HTML, CSS, client-side JS)
-app.use(express.static('public'));
+const csvDirectory = '/tmp/uploads';
+let latestCoordinates = { latitude: null, longitude: null };
 
-// Endpoint to get the Google Maps API key
+try {
+    if (!fs.existsSync(csvDirectory)) {
+        fs.mkdirSync(csvDirectory, { recursive: true });
+    }
+} catch (err) {
+    console.error('Error creating upload directory:', err);
+}
+
+const upload = multer({
+    dest: csvDirectory,
+    limits: { fileSize: 10 * 1024 * 1024 },
+});
+
+app.use(express.static('public'));
+app.use(express.json({ limit: '20mb' }));
+app.use(express.urlencoded({ limit: '20mb', extended: true }));
+
 app.get('/api/maps-key', (req, res) => {
     res.json({ key: process.env.GOOGLE_MAPS_API_KEY });
 });
 
-// Route to get the coordinates
 app.get('/api/coordinates', (req, res) => {
-    const filePath = path.join(__dirname, 'coordinates.txt');
-
-    fs.readFile(filePath, 'utf8', (err, data) => {
-        if (err) {
-            res.status(500).send('Error reading the coordinates file');
-            return;
-        }
-        res.send(data);
-    });
+    if (latestCoordinates.latitude && latestCoordinates.longitude) {
+        res.json(latestCoordinates);
+    } else {
+        res.status(404).send('No coordinates available');
+    }
 });
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+app.post('/api/update', upload.single('csv'), (req, res) => {
+    const file = req.file;
+    if (!file) {
+        console.error('No file uploaded');
+        return res.status(400).send('No file uploaded');
+    }
+
+    const originalFilename = file.originalname || '';
+    const filePath = file.path;
+
+    console.log('Uploaded file details:', file);
+    console.log(`Original filename: ${originalFilename}`);
+    console.log(`File extension: ${path.extname(originalFilename).toLowerCase()}`);
+
+    if (!originalFilename.toLowerCase().endsWith('.csv')) {
+        console.error('Invalid file type:', originalFilename);
+        return res.status(400).send('Please upload a valid CSV file');
+    }
+
+    try {
+        processCSV(filePath);
+        res.status(200).send('CSV uploaded and processing started');
+    } catch (processingError) {
+        console.error('Error processing file:', processingError);
+        res.status(500).send('A server error has occurred while processing the file');
+    }
 });
 
-// Handle a request to display a map with markers
+function processCSV(filePath) {
+    try {
+        console.log(`Processing CSV at path: ${filePath}`);
+        fs.createReadStream(filePath)
+            .pipe(csv())
+            .on('data', (data) => {
+                const latitude = data['location|latitude'];
+                const longitude = data['location|longitude'];
+
+                if (latitude && longitude) {
+                    latestCoordinates = { latitude: parseFloat(latitude), longitude: parseFloat(longitude) };
+                    console.log(`Updated coordinates: ${latestCoordinates.latitude}, ${latestCoordinates.longitude}`);
+                }
+            })
+            .on('end', () => {
+                console.log('Finished processing CSV');
+                fs.unlink(filePath, (err) => {
+                    if (err) {
+                        console.error('Error deleting file:', err);
+                    } else {
+                        console.log('File successfully processed and deleted:', filePath);
+                    }
+                });
+            })
+            .on('error', (err) => {
+                console.error('Error processing CSV file:', err);
+            });
+    } catch (err) {
+        console.error('Error during CSV processing:', err);
+    }
+}
+
 app.get('/display-map', (req, res) => {
-    // You can retrieve additional data or parameters from the request
     const { lat, lng } = req.query;
-
-    // Render an HTML page with a map using a template engine (e.g., EJS)
     res.render('map', { lat, lng });
 });
 
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
