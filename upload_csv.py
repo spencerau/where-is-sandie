@@ -4,6 +4,7 @@ from geopy.distance import geodesic
 import requests
 import os
 from dotenv import load_dotenv
+import time
 
 
 # environment variables from .env file
@@ -25,9 +26,7 @@ def upload_csv(file_path):
     with open(file_path, 'rb') as f:
         files = {'file': ('coordinates.csv', f)}
         response = requests.post(api_endpoint_url, files=files)
-        if response.status_code == 200:
-            print("Upload successful")
-        else:
+        if response.status_code != 200:
             print(f"Failed to upload: {response.status_code}")
             print(f"Response: {response.text}")
 
@@ -61,4 +60,6 @@ def check_and_upload():
 
 
 if __name__ == "__main__":
-    check_and_upload()
+    while True:
+        check_and_upload()
+        time.sleep(1)
