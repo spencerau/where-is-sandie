@@ -15,4 +15,5 @@ clear
 # Open terminal window for FindMyHistory and run main.py
 osascript -e 'tell application "Terminal" to do script "cd /Users/spencerau/Documents/GitHub/where-is-sandie/FindMyHistory && python3 main.py"'
 
+# Open terminal window to run upload_csv.py
 osascript -e 'tell application "Terminal" to do script "cd /Users/spencerau/Documents/GitHub/where-is-sandie && python3 upload_csv.py"'
