@@ -1,0 +1,23 @@
+/* styles/Home.module.css */
+
+.header {
+    text-align: center;
+  }
+  
+  .map {
+    height: 100%;
+  }
+  
+  .sleepingCorgi img {
+    max-width: 100%;
+    height: auto;
+    transform: scale(0.5);
+  }
+  
+  html,
+  body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+  
