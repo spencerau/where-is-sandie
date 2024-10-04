@@ -28,9 +28,11 @@ app.use(express.static('public'));
 app.use(express.json({ limit: '20mb' }));
 app.use(express.urlencoded({ limit: '20mb', extended: true }));
 
+
 app.get('/api/maps-key', (req, res) => {
     res.json({ key: process.env.GOOGLE_MAPS_API_KEY });
 });
+
 
 app.get('/api/coordinates', (req, res) => {
     if (latestCoordinates.latitude && latestCoordinates.longitude) {
@@ -40,33 +42,30 @@ app.get('/api/coordinates', (req, res) => {
     }
 });
 
-app.post('/api/update', upload.single('csv'), (req, res) => {
-    const file = req.file;
-    if (!file) {
-        console.error('No file uploaded');
-        return res.status(400).send('No file uploaded');
-    }
 
-    const originalFilename = file.originalname || '';
-    const filePath = file.path;
-
-    console.log('Uploaded file details:', file);
-    console.log(`Original filename: ${originalFilename}`);
-    console.log(`File extension: ${path.extname(originalFilename).toLowerCase()}`);
-
-    if (!originalFilename.toLowerCase().endsWith('.csv')) {
-        console.error('Invalid file type:', originalFilename);
-        return res.status(400).send('Please upload a valid CSV file');
-    }
-
+app.post('/api/update', (req, res) => {
     try {
-        processCSV(filePath);
-        res.status(200).send('CSV uploaded and processing started');
-    } catch (processingError) {
-        console.error('Error processing file:', processingError);
-        res.status(500).send('A server error has occurred while processing the file');
+        const filePath = path.join(csvDirectory, 'uploaded.csv');
+
+        const writeStream = fs.createWriteStream(filePath);
+        req.pipe(writeStream);
+
+        req.on('end', () => {
+            console.log('File uploaded successfully');
+            processCSV(filePath);
+            res.status(200).send('CSV uploaded and processing started');
+        });
+
+        req.on('error', (err) => {
+            console.error('Error uploading file:', err);
+            res.status(500).send('Error uploading file');
+        });
+    } catch (err) {
+        console.error('Unexpected server error:', err);
+        res.status(500).send('A server error has occurred.');
     }
 });
+
 
 function processCSV(filePath) {
     try {
@@ -100,10 +99,13 @@ function processCSV(filePath) {
     }
 }
 
+
+
 app.get('/display-map', (req, res) => {
     const { lat, lng } = req.query;
     res.render('map', { lat, lng });
 });
+
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
