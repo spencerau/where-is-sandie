@@ -1,23 +1,28 @@
-/* styles/Home.module.css */
+/* styles/globals.css */
 
-.header {
-    text-align: center;
-  }
-  
-  .map {
-    height: 100%;
-  }
-  
-  .sleepingCorgi img {
-    max-width: 100%;
-    height: auto;
-    transform: scale(0.5);
-  }
-  
-  html,
-  body {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-  }
-  
+/* Global Styles */
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+#__next {
+  height: 100%;
+}
+
+/* Sleeping Corgi Styles */
+.sleepingCorgi {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.sleepingCorgi img {
+  width: 25%;
+  height: auto;
+  max-width: 30%;
+  object-fit: cover;
+}

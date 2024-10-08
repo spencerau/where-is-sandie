@@ -3,6 +3,7 @@
 import Head from 'next/head';
 import { useEffect, useRef, useState } from 'react';
 import Papa from 'papaparse';
+import styles from '../styles/Home.module.css';
 
 export default function Home() {
   const [isNapping, setIsNapping] = useState(false);
@@ -63,7 +64,8 @@ export default function Home() {
   const initMap = (lat, lng) => {
     if (!map) {
       const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&callback=initMapCallback`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&callback=loadMap`;
+      //script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&callback=initMapCallback`;
       script.async = true;
       window.initMapCallback = () => {
         const mapInstance = new google.maps.Map(mapRef.current, {
@@ -98,19 +100,15 @@ export default function Home() {
         <title>Where is Sandie?</title>
       </Head>
 
-      <h1 className="header">
-        {isNapping ? 'Sandie is Currently Napping' : 'Find Sandie on Campus!'}
+      <h1 className={styles.header}>
+        {isNapping ? 'Sandie is Currently Napping at Home' : 'Find Sandie on Campus!'}
       </h1>
 
       {!isNapping ? (
-        <div id="map" className="map" ref={mapRef} style={{ height: '80vh' }}></div>
+        <div id="map" className={styles.map} ref={mapRef}></div>
       ) : (
-        <div id="sleepingCorgi" style={{ textAlign: 'center' }}>
-          <img
-            src="/assets/sleep.jpg"
-            alt="Sleeping Corgi"
-            style={{ maxWidth: '100%', height: 'auto' }}
-          />
+        <div id="sleepingCorgi" className="sleepingCorgi">
+          <img src="/assets/sleep.jpg" alt="Sleeping Corgi" />
         </div>
       )}
     </div>
