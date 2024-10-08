@@ -43,9 +43,12 @@ def check_and_upload():
                 longitude = float(row.get("location|longitude"))
 
                 if is_within_radius((latitude, longitude), geofence_center_coords, geofence_radius_miles):
+                    #print("sandie is on campus")
                     upload_csv(csv_file_path)
                     break
                 else:
+                    #print("sandie is NOT on campus")
+
                     # Create a CSV file with 0,0 coordinates
                     temp_csv_path = os.path.join("/tmp", "dummy.csv")
                     with open(temp_csv_path, mode='w', newline='') as temp_csvfile:
