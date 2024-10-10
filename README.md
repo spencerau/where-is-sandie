@@ -20,3 +20,7 @@
 - Set .env and .env.local files
 - Run `npm run dev` to start the server on localhost:3000
 - Go to http://localhost:3000 to view the page
+
+## TODO:
+- add "Last Updated/Seen At Time"
+- Try to figure out how to add altitude/floor info (currently returns a -1 which means it can't find that info)
