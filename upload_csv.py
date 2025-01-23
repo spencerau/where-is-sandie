@@ -32,8 +32,8 @@ def upload_csv(file_path):
 
 
 def check_and_upload():
-    current_date = datetime.now().strftime('%Y-%m-%d')
-    csv_file_path = os.path.join("FindMyHistory", "log", current_date, f"{device_name}.csv")
+    #current_date = datetime.now().strftime('%Y-%m-%d')
+    csv_file_path = os.path.join("FindMyHistory", "log", f"{device_name}.csv")
 
     try:
         with open(csv_file_path, mode='r') as csvfile:
