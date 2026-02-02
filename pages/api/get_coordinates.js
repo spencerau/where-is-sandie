@@ -37,6 +37,7 @@ export default function handler(req, res) {
   }
 
   const csvPath = path.join('/tmp', 'coordinates.csv');
+  const metaPath = path.join('/tmp', 'location_meta.json');
 
   if (fs.existsSync(csvPath)) {
     let csvData = fs.readFileSync(csvPath, 'utf8');
@@ -48,11 +49,9 @@ export default function handler(req, res) {
       
       const latIdx = headers.findIndex((h) => h.includes('latitude'));
       const lonIdx = headers.findIndex((h) => h.includes('longitude'));
-      const tsIdx = headers.findIndex((h) => h.includes('timeStamp'));
       
       let latitude = latIdx >= 0 ? parseFloat(rowParts[latIdx]) : 0;
       let longitude = lonIdx >= 0 ? parseFloat(rowParts[lonIdx]) : 0;
-      let timestamp = ts || (tsIdx >= 0 && rowParts[tsIdx] ? new Date(parseInt(rowParts[tsIdx])).toISOString() : new Date().toISOString());
       
       const geofenceCenter = (process.env.GEOFENCE_CENTER || '33.7933,-117.8517').split(',').map(parseFloat);
       const geofenceRadius = parseFloat(process.env.GEOFENCE_RADIUS || '0.25') * 1609.344; // miles to meters
@@ -62,6 +61,26 @@ export default function handler(req, res) {
       if (distance > geofenceRadius) {
         latitude = 0;
         longitude = 0;
+      }
+      
+      // Track location changes
+      let timestamp = new Date().toISOString();
+      let meta = { lastLat: null, lastLon: null, lastChanged: timestamp };
+      
+      if (fs.existsSync(metaPath)) {
+        try {
+          meta = JSON.parse(fs.readFileSync(metaPath, 'utf8'));
+        } catch (e) {}
+      }
+      
+      // If location changed, update timestamp
+      if (meta.lastLat !== latitude || meta.lastLon !== longitude) {
+        meta.lastLat = latitude;
+        meta.lastLon = longitude;
+        meta.lastChanged = timestamp;
+        fs.writeFileSync(metaPath, JSON.stringify(meta));
+      } else {
+        timestamp = meta.lastChanged;
       }
       
       const header = 'location|latitude,location|longitude,updated_at\n';
