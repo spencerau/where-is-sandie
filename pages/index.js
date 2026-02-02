@@ -23,16 +23,18 @@ export default function Home() {
     if (!d) return 'Last seen: unknown';
     const now = new Date();
     const then = new Date(d);
+    const diffMs = now - then;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
 
-    const isSameDay = then.toDateString() === now.toDateString();
-    const yesterday = new Date(now);
-    yesterday.setDate(now.getDate() - 1);
-    const isYesterday = then.toDateString() === yesterday.toDateString();
-
+    if (diffMins < 1) return 'Last seen just now';
+    if (diffMins < 60) return `Last seen ${diffMins} minute${diffMins !== 1 ? 's' : ''} ago`;
+    if (diffHours < 24) return `Last seen ${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
+    
     const timeStr = then.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit', hour12: true });
-
-    if (isSameDay) return `Last seen today at ${timeStr}`;
-    if (isYesterday) return `Last seen yesterday at ${timeStr}`;
+    if (diffDays === 1) return `Last seen yesterday at ${timeStr}`;
+    
     const monthDay = then.toLocaleString(undefined, { month: 'short', day: 'numeric' });
     return `Last seen ${monthDay} at ${timeStr}`;
   };
