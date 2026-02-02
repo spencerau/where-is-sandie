@@ -7,7 +7,6 @@ from dotenv import load_dotenv
 import time
 
 
-# environment variables from .env file
 load_dotenv()
 geofence_center = os.getenv('GEOFENCE_CENTER')
 geofence_radius_miles = float(os.getenv('GEOFENCE_RADIUS', 0.25))
@@ -32,7 +31,6 @@ def upload_csv(file_path):
 
 
 def check_and_upload():
-    #current_date = datetime.now().strftime('%Y-%m-%d')
     csv_file_path = os.path.join("FindMyHistory", "log", f"{device_name}.csv")
 
     try:
@@ -41,21 +39,32 @@ def check_and_upload():
             for row in csvreader:
                 latitude = float(row.get("location|latitude"))
                 longitude = float(row.get("location|longitude"))
+                timestamp = row.get("location|timeStamp")
 
                 if is_within_radius((latitude, longitude), geofence_center_coords, geofence_radius_miles):
-                    #print("sandie is on campus")
-                    upload_csv(csv_file_path)
-                    break
-                else:
-                    #print("sandie is NOT on campus")
-
-                    # Create a CSV file with 0,0 coordinates
-                    temp_csv_path = os.path.join("/tmp", "dummy.csv")
+                    temp_csv_path = os.path.join("/tmp", "coordinates_upload.csv")
                     with open(temp_csv_path, mode='w', newline='') as temp_csvfile:
-                        fieldnames = ["location|latitude", "location|longitude"]
+                        fieldnames = ["location|latitude", "location|longitude", "location|timeStamp"]
                         writer = csv.DictWriter(temp_csvfile, fieldnames=fieldnames)
                         writer.writeheader()
-                        writer.writerow({"location|latitude": 0, "location|longitude": 0})
+                        writer.writerow({
+                            "location|latitude": latitude, 
+                            "location|longitude": longitude,
+                            "location|timeStamp": timestamp
+                        })
+                    upload_csv(temp_csv_path)
+                    break
+                else:
+                    temp_csv_path = os.path.join("/tmp", "coordinates_upload.csv")
+                    with open(temp_csv_path, mode='w', newline='') as temp_csvfile:
+                        fieldnames = ["location|latitude", "location|longitude", "location|timeStamp"]
+                        writer = csv.DictWriter(temp_csvfile, fieldnames=fieldnames)
+                        writer.writeheader()
+                        writer.writerow({
+                            "location|latitude": 0, 
+                            "location|longitude": 0,
+                            "location|timeStamp": timestamp
+                        })
                     upload_csv(temp_csv_path)
                     break
     except Exception as e:

@@ -36,8 +36,11 @@ export default function handler(req, res) {
     return;
   }
 
-  const csvPath = path.join('/tmp', 'coordinates.csv');
-  const metaPath = path.join('/tmp', 'location_meta.json');
+  // Use different paths for development vs production
+  const isDev = process.env.NODE_ENV === 'development';
+  const csvPath = isDev 
+    ? path.join(process.cwd(), 'FindMyHistory', 'log', 'Sandies_Airtag_New_NULL_J09LF9LFP0GV.csv')
+    : path.join('/tmp', 'coordinates.csv');
 
   if (fs.existsSync(csvPath)) {
     let csvData = fs.readFileSync(csvPath, 'utf8');
@@ -47,24 +50,24 @@ export default function handler(req, res) {
       const headers = lines[0].split(',');
       const rowParts = lines[1].split(',');
       
-      const latIdx = headers.findIndex((h) => h.includes('latitude'));
-      const lonIdx = headers.findIndex((h) => h.includes('longitude'));
-      const tsIdx = headers.findIndex((h) => h.includes('timeStamp'));
+      const latIdx = headers.findIndex((h) => h === 'location|latitude');
+      const lonIdx = headers.findIndex((h) => h === 'location|longitude');
+      const tsIdx = headers.findIndex((h) => h === 'location|timeStamp');
       
       let latitude = latIdx >= 0 ? parseFloat(rowParts[latIdx]) : 0;
       let longitude = lonIdx >= 0 ? parseFloat(rowParts[lonIdx]) : 0;
       
-      // Use the FindMy timestamp directly (convert from milliseconds to ISO string)
+      // Parse the FindMy timestamp (milliseconds since epoch)
       let timestamp = new Date().toISOString();
       if (tsIdx >= 0 && rowParts[tsIdx]) {
-        const timestampMs = parseInt(rowParts[tsIdx]);
-        if (!isNaN(timestampMs)) {
+        const timestampMs = parseInt(rowParts[tsIdx], 10);
+        if (!isNaN(timestampMs) && timestampMs > 0) {
           timestamp = new Date(timestampMs).toISOString();
         }
       }
       
       const geofenceCenter = (process.env.GEOFENCE_CENTER || '33.7933,-117.8517').split(',').map(parseFloat);
-      const geofenceRadius = parseFloat(process.env.GEOFENCE_RADIUS || '0.25') * 1609.344; // miles to meters
+      const geofenceRadius = parseFloat(process.env.GEOFENCE_RADIUS || '0.25') * 1609.344;
       
       const distance = getDistance(latitude, longitude, geofenceCenter[0], geofenceCenter[1]);
       
