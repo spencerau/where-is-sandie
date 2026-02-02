@@ -10,7 +10,7 @@ import time
 # environment variables from .env file
 load_dotenv()
 geofence_center = os.getenv('GEOFENCE_CENTER')
-geofence_radius_miles = float(os.getenv('GEOFENCE_RADIUS', 1.5))
+geofence_radius_miles = float(os.getenv('GEOFENCE_RADIUS', 0.25))
 api_endpoint_url = os.getenv('API_ENDPOINT_URL')
 device_name = os.getenv('DEVICE')
 
