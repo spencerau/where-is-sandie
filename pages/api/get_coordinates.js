@@ -53,7 +53,15 @@ export default function handler(req, res) {
       
       let latitude = latIdx >= 0 ? parseFloat(rowParts[latIdx]) : 0;
       let longitude = lonIdx >= 0 ? parseFloat(rowParts[lonIdx]) : 0;
-      const findMyTimestamp = tsIdx >= 0 && rowParts[tsIdx] ? new Date(parseInt(rowParts[tsIdx])).toISOString() : new Date().toISOString();
+      
+      // Use the FindMy timestamp directly (convert from milliseconds to ISO string)
+      let timestamp = new Date().toISOString();
+      if (tsIdx >= 0 && rowParts[tsIdx]) {
+        const timestampMs = parseInt(rowParts[tsIdx]);
+        if (!isNaN(timestampMs)) {
+          timestamp = new Date(timestampMs).toISOString();
+        }
+      }
       
       const geofenceCenter = (process.env.GEOFENCE_CENTER || '33.7933,-117.8517').split(',').map(parseFloat);
       const geofenceRadius = parseFloat(process.env.GEOFENCE_RADIUS || '0.25') * 1609.344; // miles to meters
@@ -63,26 +71,6 @@ export default function handler(req, res) {
       if (distance > geofenceRadius) {
         latitude = 0;
         longitude = 0;
-      }
-      
-      // Track location changes
-      let timestamp = findMyTimestamp;
-      let meta = { lastLat: null, lastLon: null, lastChanged: findMyTimestamp };
-      
-      if (fs.existsSync(metaPath)) {
-        try {
-          meta = JSON.parse(fs.readFileSync(metaPath, 'utf8'));
-        } catch (e) {}
-      }
-      
-      // If location changed, update timestamp to FindMy's timestamp
-      if (meta.lastLat !== latitude || meta.lastLon !== longitude) {
-        meta.lastLat = latitude;
-        meta.lastLon = longitude;
-        meta.lastChanged = findMyTimestamp;
-        fs.writeFileSync(metaPath, JSON.stringify(meta));
-      } else {
-        timestamp = meta.lastChanged;
       }
       
       const header = 'location|latitude,location|longitude,updated_at\n';
